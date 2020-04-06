@@ -13,3 +13,13 @@ yet another photo manager, with simple but useful features.
 For now, none of the features above was provided, but content based dedumplication
 will comming soon :).
 
+
+## build
+
+In debian/ubuntu:
+```buildoutcfg
+apt-get install libboost-python1.71-dev libexiv2-dev  # for py3exiv2
+pip install -r requirements.txt
+```
+
+
