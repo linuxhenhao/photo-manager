@@ -1,3 +1,7 @@
+import dataclasses
+from datetime import datetime
+from typing import TypeVar, Type, Optional
+
 from sqlalchemy import (
     Column,
     Integer,
@@ -11,16 +15,41 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
+T = TypeVar("T")
 
 
-class Photo(Base):
+@dataclasses.dataclass
+class Photo:
+    src_path: str
+    relative_path: str
+    size: int
+    create_time: datetime
+
+
+class PhotoModel(Base):
     __tablename__ = "photo"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(String(500), nullable=False, index=True)
     size = Column(Integer, nullable=False)
     md5sum = Column(String(32), nullable=False, index=True)
+    meta_info_path = Column(String(500), nullable=False)  # position of exif info json
     create_time = Column(DateTime, nullable=False)
+    data: bytes
+
+    @classmethod
+    def from_photo(cls: Type[T], photo: Photo) -> Optional[T]:
+        # TODO:
+        # read in photo, calculate md5sum, check in db,
+        with open(photo.src_path, "br") as f:
+            photo_data = f.read()
+        instance = cls(
+            path=photo.relative_path,
+            size=photo.size,
+            create_time=photo.create_time,
+        )
+        instance.data = photo_data
+        return instance
 
 
 class Tag(Base):
